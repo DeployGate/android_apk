@@ -139,4 +139,3 @@ modules.xml
 # Custom
 .DS_Store
 vendor/bundle
-!.idea/codeStyles/
