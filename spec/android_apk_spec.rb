@@ -5,7 +5,9 @@ require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 describe "AndroidApk" do
   subject { AndroidApk.analyze(apk_filepath) }
 
-  FIXTURE_DIR = File.join(File.dirname(__FILE__), "fixture")
+  before do
+    AndroidApk.clear_configuration
+  end
 
   shared_examples_for :analyzable do
     it "should exist" do
@@ -28,7 +30,7 @@ describe "AndroidApk" do
   context "if duplicated sdk_version apk are given" do
     let(:apk_filepath) { File.join(FIXTURE_DIR, "other", "duplicate_sdk_version.apk") }
     it "should raise error" do
-      expect { subject }.to raise_error(AndroidApk::AndroidManifestValidateError, /Duplication of sdkVersion tag is not allowed/)
+      expect { subject }.to raise_error(AndroidApk::NonAnalyzableError) { |error| expect(error.original.kind_of?(AndroidApk::DuplicatedTagError)).to be_truthy }
     end
   end
 
@@ -40,8 +42,8 @@ describe "AndroidApk" do
         expect(File.exist?(apk_filepath)).to be_falsey
       end
 
-      it "should not raise any exception but not be analyzable" do
-        expect(subject).to be_nil
+      it "raises an error" do
+        expect { subject }.to raise_error(AndroidApk::NonAnalyzableError) { |error| expect(error.original.kind_of?(AndroidApk::FileNotFoundError)).to be_truthy }
       end
     end
 
@@ -52,8 +54,8 @@ describe "AndroidApk" do
         expect(File.exist?(apk_filepath)).to be_truthy
       end
 
-      it "should not raise any exception but not be analyzable" do
-        expect(subject).to be_nil
+      it "raises an error" do
+        expect { subject }.to raise_error(AndroidApk::NonAnalyzableError) { |error| expect(error.original.kind_of?(AndroidApk::Aapt::ExecutionFailure)).to be_truthy }
       end
     end
 
@@ -65,7 +67,7 @@ describe "AndroidApk" do
       end
 
       it "should raise error" do
-        expect { subject }.to raise_error(AndroidApk::AndroidManifestValidateError)
+        expect { subject }.to raise_error(AndroidApk::NonAnalyzableError) { |error| expect(error.original.kind_of?(AndroidApk::DuplicatedTagError)).to be_truthy }
       end
     end
   end

@@ -168,3 +168,6 @@ Style/TrailingCommaInArrayLiteral:
 
 Style/TrailingCommaInHashLiteral:
   Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false

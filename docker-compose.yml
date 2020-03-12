@@ -5,6 +5,7 @@ services:
       context: .
       args:
         BUILD_TOOLS_VERSION: "27.0.3"
+        SDK_HASH: "4333796"
     command: /bin/bash
     volumes:
       - .:/android_apk

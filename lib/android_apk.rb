@@ -6,8 +6,23 @@ require "shellwords"
 require "tmpdir"
 require "zip"
 
+require_relative "./constants"
+require_relative "./error"
+
+require_relative "./android_apk/aapt"
+require_relative "./android_apk/bundletool"
+require_relative "./android_apk/config"
+
 class AndroidApk
-  ADAPTIVE_ICON_SDK = 26
+  # @yieldparam c [AndroidApk::Config]
+  def self.configure(&block)
+    block.call(config)
+  end
+
+  # Clear memorable configuration
+  def self.clear_configuration
+    @config = nil
+  end
 
   # Dump result which was parsed manually
   # @return [Hash] Return a parsed result of aapt dump
@@ -81,6 +96,9 @@ class AndroidApk
 
   NOT_ALLOW_DUPLICATE_TAG_NAMES = %w(
     application
+  ).freeze
+
+  OPTIONAL_NOT_ALLOW_DUPLICATE_TAG_NAMES = %w(
     sdkVersion
     targetSdkVersion
   ).freeze
@@ -102,55 +120,48 @@ class AndroidApk
     UNSIGNED = :unsigned
   end
 
-  class AndroidManifestValidateError < StandardError
-  end
-
   # Do analyze the given apk file. Analyzed apk does not mean *valid*.
   #
   # @param [String] filepath a filepath of an apk to be analyzed
   # @raise [AndroidManifestValidateError] if AndroidManifest.xml has multiple application, sdkVersion tags.
-  # @return [AndroidApk, nil] An instance of AndroidApk will be returned if no problem exists while analyzing. Otherwise nil.
+  # @return [AndroidApk] An instance of AndroidApk will be returned if no problem exists while analyzing. Otherwise raise an error.
   def self.analyze(filepath)
-    return nil unless File.exist?(filepath)
+    command = AndroidApk::Aapt::BumpBadging.new(apk_file_path: filepath)
+    results = command.execute!
 
-    apk = AndroidApk.new
-    command = "aapt dump badging #{filepath.shellescape} 2>&1"
-    results = `#{command}`
-    if $?.exitstatus != 0 or results.index("ERROR: dump failed")
-      return nil
+    AndroidApk.new.tap do |apk|
+      apk.filepath = filepath
+      apk.results = results
+      vars = _parse_aapt(results)
+
+      # application info
+      apk.label = vars["application-label"]
+      apk.icon = vars["application"]["icon"]
+      apk.test_only = vars.key?("testOnly='-1'")
+
+      # package
+
+      apk.package_name = vars["package"]["name"]
+      apk.version_code = vars["package"]["versionCode"]
+      apk.version_name = vars["package"]["versionName"]
+
+      # platforms
+      apk.sdk_version = vars["sdkVersion"].kind_of?(Array) ? vars["sdkVersion"].min : vars["sdkVersion"]
+      apk.target_sdk_version = vars["targetSdkVersion"].kind_of?(Array) ? vars["targetSdkVersion"].min : vars["targetSdkVersion"]
+
+      # icons and labels
+      apk.icons = {}
+      apk.labels = {}
+      vars.each_key do |k|
+        apk.icons[Regexp.last_match(1).to_i] = vars[k] if k =~ /^application-icon-(\d+)$/
+        apk.labels[Regexp.last_match(1)] = vars[k] if k =~ /^application-label-(\S+)$/
+      end
+
+      read_signature(apk, filepath)
+      read_adaptive_icon(apk, filepath)
     end
-
-    apk.filepath = filepath
-    apk.results = results
-    vars = _parse_aapt(results)
-
-    # application info
-    apk.label = vars["application-label"]
-    apk.icon = vars["application"]["icon"]
-    apk.test_only = vars.key?("testOnly='-1'")
-
-    # package
-
-    apk.package_name = vars["package"]["name"]
-    apk.version_code = vars["package"]["versionCode"]
-    apk.version_name = vars["package"]["versionName"]
-
-    # platforms
-    apk.sdk_version = vars["sdkVersion"]
-    apk.target_sdk_version = vars["targetSdkVersion"]
-
-    # icons and labels
-    apk.icons = {}
-    apk.labels = {}
-    vars.each_key do |k|
-      apk.icons[Regexp.last_match(1).to_i] = vars[k] if k =~ /^application-icon-(\d+)$/
-      apk.labels[Regexp.last_match(1)] = vars[k] if k =~ /^application-label-(\S+)$/
-    end
-
-    read_signature(apk, filepath)
-    read_adaptive_icon(apk, filepath)
-
-    return apk
+  rescue Error => e
+    raise NonAnalyzableError.new("an error happened so could not analyze. please check the original error", e)
   end
 
   # Get an application icon file of this apk file.
@@ -315,7 +326,7 @@ class AndroidApk
   # @param [String] key a key of AndroidManifest.xml
   # @raise [AndroidManifestValidateError] if a key is found in (see NOT_ALLOW_DUPLICATE_TAG_NAMES)
   def self.reject_illegal_duplicated_key!(key)
-    raise AndroidManifestValidateError, "Duplication of #{key} tag is not allowed" if NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(key)
+    raise DuplicatedTagError, "Duplication of #{key} tag is not allowed" if duplicated_tag?(key)
   end
 
   def self.read_signature(apk, filepath)
@@ -363,6 +374,16 @@ class AndroidApk
       Zip::File.open(filepath) do |zip_file|
         apk.backward_compatible_adaptive_icon = !zip_file.find_entry(adaptive_icon_path).nil?
       end
+    end
+  end
+
+  def self.duplicated_tag?(tag)
+    NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(tag) || config.strict && OPTIONAL_NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(tag)
+  end
+
+  def self.config
+    @config ||= Config.new.tap do |c|
+      c.strict = true
     end
   end
 end

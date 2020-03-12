@@ -7,10 +7,10 @@ require "version.rb"
 Gem::Specification.new do |spec|
   spec.name = "android_apk"
   spec.version = AndroidApk::VERSION
-  spec.authors = ["Kyosuke Inoue"]
-  spec.email = ["kyoro@hakamastyle.net"]
-  spec.date = "2015-04-29"
-  spec.description = "This library can analyze Android APK application package. You can get any information of android apk file."
+  spec.authors = ["DeployGate, Inc."]
+  spec.email = ["help@deploygate.com"]
+  spec.date = "2020-03-12"
+  spec.description = "This library can analyze Android APK application package. You can get any information of android apk file. Originally developed by Kyosuke Inoue (kyoro@hakamastyle.net)"
   spec.summary = "Android APK file analyzer"
   spec.homepage = "https://github.com/DeployGate/android_apk"
   spec.license = "MIT"

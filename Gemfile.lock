@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    android_apk (1.1.0)
+    android_apk (1.2.0)
       rubyzip (>= 1.2.3)
 
 GEM
