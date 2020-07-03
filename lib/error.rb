@@ -8,12 +8,5 @@ class AndroidApk
   class DuplicatedTagError < AndroidManifestValidateError; end
 
   class FileNotFoundError < Error; end
-  class NonAnalyzableError < Error
-    attr_reader :original
-
-    def initialize(message, original)
-      super(message)
-      @original = original
-    end
-  end
+  class NonAnalyzableError < Error; end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    android_apk (1.2.0)
+    android_apk (1.1.1)
       rubyzip (>= 1.2.3)
 
 GEM
@@ -74,7 +74,7 @@ GEM
       unicode-display_width (~> 1.4.0)
     ruby-progressbar (1.10.0)
     ruby_dep (1.5.0)
-    rubyzip (2.2.0)
+    rubyzip (2.3.0)
     shellany (0.0.1)
     simplecov (0.16.1)
       docile (~> 1.1)

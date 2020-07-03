@@ -1,14 +1,7 @@
 # frozen_string_literal: true
 
 module AndroidApk::Bundletool
-  class ExecutionFailure < AndroidApk::Error
-    attr_reader :stderr
-
-    def initialize(message, stderr)
-      super(message)
-      @stderr = stderr
-    end
-  end
+  class ExecutionFailure < AndroidApk::Error; end
 
   class << self
     attr_reader :bundletool_path
@@ -35,9 +28,8 @@ module AndroidApk::Bundletool
     end
 
     def execute_bundletool(*args)
-      bundletool_path = AndroidApk::Bundletool.bundletool_path || "bundletool"
-      stdout, stderr, status = Open3.capture3(*[bundletool_path, args].flatten)
-      raise ExecutionFailure.new("failed to manipulate app bundle file", stderr) unless status.success?
+      stdout, stderr, status = Open3.capture3(*[AndroidApk::Config.bundletool_path || "bundletool", args].flatten)
+      raise ExecutionFailure, stderr unless status.success?
 
       stdout.chomp
     end

@@ -24,10 +24,6 @@ class AndroidApk
     @config = nil
   end
 
-  # Dump result which was parsed manually
-  # @return [Hash] Return a parsed result of aapt dump
-  attr_accessor :results
-
   # Application label a.k.a application name in the default resource
   # @return [String] Return a value which is defined in AndroidManifest.xml
   attr_accessor :label
@@ -58,8 +54,8 @@ class AndroidApk
 
   # Min sdk version of this apk
   # @return [String] Return Integer string which is defined in AndroidManifest.xml
-  attr_accessor :sdk_version
-  alias min_sdk_version sdk_version
+  attr_accessor :min_sdk_version
+  alias sdk_version min_sdk_version
 
   # Target sdk version of this apk
   # @return [String] Return Integer string which is defined in AndroidManifest.xml
@@ -127,41 +123,37 @@ class AndroidApk
   # @return [AndroidApk] An instance of AndroidApk will be returned if no problem exists while analyzing. Otherwise raise an error.
   def self.analyze(filepath)
     command = AndroidApk::Aapt::BumpBadging.new(apk_file_path: filepath)
-    results = command.execute!
+    raw_results = command.execute!
+    result = AndroidApk::Aapt::Parser.parse(raw_results)
 
     AndroidApk.new.tap do |apk|
       apk.filepath = filepath
-      apk.results = results
-      vars = _parse_aapt(results)
 
       # application info
-      apk.label = vars["application-label"]
-      apk.icon = vars["application"]["icon"]
-      apk.test_only = vars.key?("testOnly='-1'")
+
+      apk.label = result.application_label
+      apk.icon = result.application_icon
+      apk.test_only = result.test_only
 
       # package
 
-      apk.package_name = vars["package"]["name"]
-      apk.version_code = vars["package"]["versionCode"]
-      apk.version_name = vars["package"]["versionName"]
+      apk.package_name = result.package_name
+      apk.version_code = result.version_code
+      apk.version_name = result.version_name
 
       # platforms
-      apk.sdk_version = vars["sdkVersion"].kind_of?(Array) ? vars["sdkVersion"].min : vars["sdkVersion"]
-      apk.target_sdk_version = vars["targetSdkVersion"].kind_of?(Array) ? vars["targetSdkVersion"].min : vars["targetSdkVersion"]
+      apk.min_sdk_version = result.min_sdk_version
+      apk.target_sdk_version = result.target_sdk_version
 
       # icons and labels
-      apk.icons = {}
-      apk.labels = {}
-      vars.each_key do |k|
-        apk.icons[Regexp.last_match(1).to_i] = vars[k] if k =~ /^application-icon-(\d+)$/
-        apk.labels[Regexp.last_match(1)] = vars[k] if k =~ /^application-label-(\S+)$/
-      end
+      apk.icons = result.icons
+      apk.labels = result.labels
 
       read_signature(apk, filepath)
       read_adaptive_icon(apk, filepath)
     end
-  rescue Error => e
-    raise NonAnalyzableError.new("an error happened so could not analyze. please check the original error", e)
+  rescue Error
+    raise NonAnalyzableError, "an error happened so could not analyze. please check the original error"
   end
 
   # Get an application icon file of this apk file.
@@ -247,87 +239,6 @@ class AndroidApk
     !signature.nil?
   end
 
-  # workaround for https://code.google.com/p/android/issues/detail?id=160847
-  def self._parse_values_workaround(str)
-    return nil if str.nil?
-
-    str.scan(/^'(.+)'$/).map { |v| v[0].gsub(/\\'/, "'") }
-  end
-
-  # Parse values of aapt output
-  #
-  # @param [String, nil] str a values string of aapt output.
-  # @return [Array, Hash, nil] return nil if (see str) is nil. Otherwise the parsed array will be returned.
-  def self._parse_values(str)
-    return nil if str.nil?
-
-    if str.index("='")
-      # key-value hash
-      vars = Hash[str.scan(/(\S+)='((?:\\'|[^'])*)'/)]
-      vars.each_value { |v| v.gsub(/\\'/, "'") }
-    else
-      # values array
-      vars = str.scan(/'((?:\\'|[^'])*)'/).map { |v| v[0].gsub(/\\'/, "'") }
-    end
-    return vars
-  end
-
-  # Parse output of a line of aapt command like `key: values`
-  #
-  # @param [String, nil] line a line of aapt command.
-  # @return [[String, Hash], nil] return nil if (see line) is nil. Otherwise the parsed hash will be returned.
-  def self._parse_line(line)
-    return nil if line.nil?
-
-    info = line.split(":", 2)
-    values =
-      if info[0].start_with?("application-label")
-        _parse_values_workaround info[1]
-      else
-        _parse_values info[1]
-      end
-    return info[0], values
-  end
-
-  # Parse output of aapt command to Hash format
-  #
-  # @param [String, nil] results output of aapt command. this may be multi lines.
-  # @return [Hash, nil] return nil if (see str) is nil. Otherwise the parsed hash will be returned.
-  def self._parse_aapt(results)
-    vars = {}
-    results.split("\n").each do |line|
-      key, value = _parse_line(line)
-      next if key.nil?
-
-      if vars.key?(key)
-        reject_illegal_duplicated_key!(key)
-
-        if vars[key].kind_of?(Hash) and value.kind_of?(Hash)
-          vars[key].merge(value)
-        else
-          vars[key] = [vars[key]] unless vars[key].kind_of?(Array)
-          if value.kind_of?(Array)
-            vars[key].concat(value)
-          else
-            vars[key].push(value)
-          end
-        end
-      else
-        vars[key] = if value.nil? || value.kind_of?(Hash)
-                      value
-                    else
-                      value.length > 1 ? value : value[0]
-                    end
-      end
-    end
-    return vars
-  end
-
-  # @param [String] key a key of AndroidManifest.xml
-  # @raise [AndroidManifestValidateError] if a key is found in (see NOT_ALLOW_DUPLICATE_TAG_NAMES)
-  def self.reject_illegal_duplicated_key!(key)
-    raise DuplicatedTagError, "Duplication of #{key} tag is not allowed" if duplicated_tag?(key)
-  end
 
   def self.read_signature(apk, filepath)
     # Use target_sdk_version as min sdk version!
@@ -378,12 +289,6 @@ class AndroidApk
   end
 
   def self.duplicated_tag?(tag)
-    NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(tag) || config.strict && OPTIONAL_NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(tag)
-  end
-
-  def self.config
-    @config ||= Config.new.tap do |c|
-      c.strict = true
-    end
+    NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(tag) || Config.strict && OPTIONAL_NOT_ALLOW_DUPLICATE_TAG_NAMES.include?(tag)
   end
 end

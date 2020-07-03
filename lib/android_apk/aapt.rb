@@ -1,14 +1,9 @@
 # frozen_string_literal: true
 
 module AndroidApk::Aapt
-  class ExecutionFailure < AndroidApk::Error
-    attr_reader :stderr
+  class ParseError < ::AndroidApk::Error; end
 
-    def initialize(message, stderr)
-      super(message)
-      @stderr = stderr
-    end
-  end
+  class ExecutionFailure < ::AndroidApk::Error; end
 
   class << self
     attr_accessor :aapt_path
@@ -24,8 +19,8 @@ module AndroidApk::Aapt
     end
 
     def execute_aapt(*args)
-      stdout, stderr, status = Open3.capture3(*[AndroidApk::Aapt.aapt_path || "aapt", args].flatten)
-      raise ExecutionFailure.new("failed to run aapt command", stderr) unless status.success?
+      stdout, stderr, status = Open3.capture3(*[AndroidApk::Config.aapt_path || "aapt", args].flatten)
+      raise ExecutionFailure, stderr unless status.success?
 
       stdout.chomp
     end
