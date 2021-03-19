@@ -181,7 +181,10 @@ class AndroidApk
       icon.gsub!(%r{res/(drawable|mipmap)/([^/]+)\.xml}, "res/\\1-#{dpis}-v4/\\2.png")
     end
 
-    # we cannot prepare for any fallbacks but don't return nil for now to keep the behavior
+    # we cannot prepare for any fallbacks so returns nil for now
+    if want_png && icon.end_with?(".xml")
+      return nil
+    end
 
     Dir.mktmpdir do |dir|
       output_to = File.join(dir, icon)
