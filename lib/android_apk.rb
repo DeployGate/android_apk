@@ -132,9 +132,11 @@ class AndroidApk
     results = `#{command}`
 
     if $?.exitstatus != 0
-      if results.index(/ERROR:?\s/) # : is never required because it's mixed.
+      File.open("./test-log.txt", "w") do |file|
+        file.write(results)
+      end
+      if results.index(/error:?\s/) # : is never required because it's mixed.
         # *normally* failed. The output of aapk dump is helpful.
-        # ref: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/tools/aapt/Command.cpp;l=860?q=%22dump%20failed%22%20aapt
         raise UnacceptableApkError, "This apk file cannot be analyzed using 'aapt dump badging'. #{results}"
       else
         # unexpectedly failed. This may happen due to the running environment.
