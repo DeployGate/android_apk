@@ -128,7 +128,7 @@ class AndroidApk
     raise ApkFileNotFoundError, "an apk file is required to analyze." unless File.exist?(filepath)
 
     apk = AndroidApk.new
-    command = "aapt dump badging #{filepath.shellescape} 2>&1"
+    command = "aapt2 dump badging #{filepath.shellescape} 2>&1"
     results = `#{command}`
 
     if $?.exitstatus != 0

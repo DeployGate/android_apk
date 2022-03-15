@@ -76,7 +76,7 @@ class AndroidApk
       end
 
       def dump_resource_values(apk_filepath:)
-        stdout, _, status = Open3.capture3("aapt", "dump", "--values", "resources", apk_filepath)
+        stdout, _, status = Open3.capture3("aapt2", "dump", "resources", apk_filepath)
         # we just need only drawables/mipmaps, and they are utf-8(ascii) friendly.
         stdout if status.success?
       end
