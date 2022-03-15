@@ -53,7 +53,7 @@ class AndroidApk
           break if line.index("type ")
 
           config = line.match(/\((?'dpi'.+)\)\s+\(.+\)/)&.named_captures&.dig("dpi")
-          config = "(default)" unless config
+          config = AndroidApk::DEFAULT_RESOURCE_CONFIG unless config
 
           png_file_path = line.split(" ")[2]
           config_hash[config] = png_file_path
