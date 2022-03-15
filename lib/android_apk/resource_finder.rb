@@ -31,7 +31,7 @@ class AndroidApk
         end
         return {} if resource_name == ""
 
-        start_index = lines.index { |line| line.index(resource_name) }
+        start_index = lines.index { |l| l.index(resource_name) }
 
         config_hash = {}
 
@@ -53,7 +53,7 @@ class AndroidApk
           break if line.index("type ")
 
           config = line.match(/\((?'dpi'.+)\)\s+\(.+\)/)&.named_captures&.dig("dpi")
-          config = AndroidApk::DEFAULT_RESOURCE_CONFIG unless config
+          config ||= AndroidApk::DEFAULT_RESOURCE_CONFIG
 
           png_file_path = line.split(" ")[2]
           config_hash[config] = png_file_path
