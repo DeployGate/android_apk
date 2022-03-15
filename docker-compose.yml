@@ -4,7 +4,7 @@ services:
     build:
       context: .
       args:
-        BUILD_TOOLS_VERSION: "31.0.0"
+        BUILD_TOOLS_VERSION: "29.0.3"
     command: /bin/bash
     volumes:
       - .:/android_apk
