@@ -18,12 +18,20 @@ class AndroidApk
         #     resource ... <resource_name>: ... (l blocks)
         #       ... "<default_icon_path>"
         value_index = lines.index { |line| line.index(default_icon_path) } or return {}
+        resource_find_index = value_index
+        resource_name = ""
+        while resource_find_index >= 0
+          line = lines[resource_find_index]
+          resource_find_index -= 1
 
-        # resource_name never contain ':'
-        resource_name = lines[value_index - 1].split(":")[1] or return {} # e.g. mipmap/ic_launcher
-        resource_name = ":#{resource_name}:" # to specify only <resource name>. The original value cannot avoid any resources that start with <resource_name>
+          if line.index("resource ")
+            resource_name = line.split(" ")[2] # e.g. mipmap/ic_launcher
+            break
+          end
+        end
+        return {} if resource_name == ""
 
-        start_index = lines.index { |line| line.index("spec resource ") && line.index(resource_name) }
+        start_index = lines.index { |line| line.index(resource_name) }
 
         config_hash = {}
 
@@ -32,12 +40,8 @@ class AndroidApk
         # A target to find values is only one *type* block.
         #
         # type <number> configCount=<m> entryCount=<l> (N blocks)
-        #   spec resource ... (l lines)
-        #   config <config_name>: (m blocks)
-        #     resource ... <resource_name>: ... (l blocks)
-        #       ... "<file path>"
-
-        # lines that start with "spec" are already rejected
+        #   resource ... <resource_name>: ... (l blocks)
+        #     ... "<file path>"
         index = 0
 
         while index < lines.size
@@ -45,31 +49,14 @@ class AndroidApk
           line = lines[index]
           index += 1
 
+          break if line.index("resource ")
           break if line.index("type ")
 
-          # drop until a config block will be found
-          next unless (config = line.match(/config\s+(?'dpi'.+):/)&.named_captures&.dig("dpi"))
+          config = line.match(/\((?'dpi'.+)\)\s+\(.+\)/)&.named_captures&.dig("dpi")
+          config = "(default)" unless config
 
-          while index < lines.size
-            line = lines[index]
-            index += 1
-
-            if line.index("config ")
-              index -= 1
-              break
-            end
-
-            # drop until a line contains <resource_name>
-            next unless line.index(resource_name)
-
-            # Next line contains the filepath and never contain a config block header
-            line = lines[index]
-            index += 1
-
-            png_file_path = line.match(/"(?'path'.+)"/)&.named_captures&.dig("path") # never nil
-
-            config_hash[config] = png_file_path
-          end
+          png_file_path = line.split(" ")[2]
+          config_hash[config] = png_file_path
         end
 
         config_hash
