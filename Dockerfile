@@ -10,7 +10,7 @@ RUN apt-get update && \
                        --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Setup aapt
+# Setup aapt2
 
 RUN mkdir -p /android
 ENV ANDROID_HOME /android
@@ -24,6 +24,6 @@ ARG BUILD_TOOLS_VERSION
 ENV PATH "/android/build-tools/$BUILD_TOOLS_VERSION:$PATH"
 RUN yes | /android/tools/bin/sdkmanager "build-tools;$BUILD_TOOLS_VERSION"
 
-RUN type aapt && type apksigner
+RUN type aapt2 && type apksigner
 
 RUN gem update bundler
