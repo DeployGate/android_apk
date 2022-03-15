@@ -18,7 +18,7 @@ end
 RSpec::Core::RakeTask.new(:specs) do |task|
   task.pattern = "spec/**{,/*/**}/*_spec.rb"
 
-  raise "you need to have aapt in PATH" unless File.executable?(`which aapt`.chomp)
+  raise "you need to have aapt2 in PATH" unless File.executable?(`which aapt2`.chomp)
 end
 
 task default: :specs
