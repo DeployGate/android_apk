@@ -64,9 +64,9 @@ commands: &commands
               yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;<< parameters.build_tools >>" >/dev/null 2>&1 || echo "Failed but it's okay"
             fi
 
-            ln -s $ANDROID_HOME/build-tools/<< parameters.build_tools >>/aapt $REPOSITORY_ROOT/.circleci/bin/aapt
+            ln -s $ANDROID_HOME/build-tools/<< parameters.build_tools >>/aapt2 $REPOSITORY_ROOT/.circleci/bin/aapt2
             ln -s $ANDROID_HOME/build-tools/<< parameters.build_tools >>/apksigner $REPOSITORY_ROOT/.circleci/bin/apksigner
-            type aapt
+            type aapt2
             type apksigner
       - save_cache:
           paths:
@@ -95,7 +95,7 @@ orbs:
           - init_git
           - download_sdk:
               zip_hash: "4333796"
-              build_tools: "27.0.3"
+              build_tools: "29.0.3"
           - when:
               condition: << parameters.after_merged >>
               steps:
