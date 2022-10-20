@@ -20,12 +20,18 @@ class AndroidApk
           #       (densityD) (file) "<D's icon path>" type=...
           #       (densityE) (file) "<E's icon path>" type=...
           #     resource ... <another_resource_name>...
-          value_index = lines.index { |line| line.index(default_icon_path) && line.index("type=") } or return {}
+          pivot_index = lines.index { |line| line.index(default_icon_path) && line.index("type=") } or return {}
 
           config_hash = {}
 
-          # pivot is value_index
-          #
+          collect_in_section(lines: lines, pivot_index: pivot_index) do |dpi, path|
+            config_hash[dpi] = path
+          end
+
+          config_hash
+        end
+
+        def collect_in_section(lines:, pivot_index:, &block)
           # 1. step back until meeting a different block.
           #   capture <default_icon_path>, <B's icon path>, <C's icon path>
           #   hit `resource ... <default_resource_name> ...` block
@@ -35,9 +41,9 @@ class AndroidApk
           #   hit `resource ... <another_resource_name> ...` block
           # 4. done!
 
-          expected_indent_level = lines[value_index][/\A\s+/].size
-          cursor_index = value_index
+          expected_indent_level = lines[pivot_index][/\A\s+/].size
 
+          cursor_index = pivot_index
           direction = :up
 
           while 0 <= cursor_index && cursor_index < lines.size do
@@ -47,7 +53,7 @@ class AndroidApk
               break if direction == :down
 
               direction = :down
-              cursor_index = value_index + 1 # step2 and step forward
+              cursor_index = pivot_index + 1 # step2 and step forward
             end
 
             captures = lines[cursor_index]&.lstrip&.match(/\((?'dpi'.*)\)\s+\(file\)\s+(?'path'\S+)/)&.named_captures || {}
@@ -56,7 +62,9 @@ class AndroidApk
 
             break if dpi.nil? || path.nil? # unexpected.
 
-            config_hash[dpi.empty? ? ::AndroidApk::DEFAULT_RESOURCE_CONFIG : dpi] = path
+            dpi = dpi.empty? ? ::AndroidApk::DEFAULT_RESOURCE_CONFIG : dpi # reassign
+
+            block.call(dpi, path)
 
             if direction == :up
               # step back
@@ -66,8 +74,6 @@ class AndroidApk
               cursor_index += 1
             end
           end
-
-          config_hash
         end
 
         def dump_resource_values(apk_filepath:)
