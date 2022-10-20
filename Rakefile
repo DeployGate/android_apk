@@ -18,7 +18,9 @@ end
 RSpec::Core::RakeTask.new(:specs) do |task|
   task.pattern = "spec/**{,/*/**}/*_spec.rb"
 
-  raise "you need to have aapt in PATH" unless File.executable?(`which aapt`.chomp)
+  %w[aapt aapt2 apksigner].each do |cmd|
+    raise "you need to have aapt in PATH" unless File.executable?(`which #{cmd.shellescape}`.chomp)
+  end
 end
 
 task default: :specs
