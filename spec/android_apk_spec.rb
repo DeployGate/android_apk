@@ -1,8 +1,22 @@
 # frozen_string_literal: true
 
 describe "AndroidApk" do
+  around(:each) do |example|
+    AndroidApk.configure(
+      resource_finder: :aapt2
+    ) do
+      example.run
+    end
+  end
+
   describe "#self.analyze" do
     subject { AndroidApk.analyze(apk_filepath) }
+
+    let(:aapt_apk) do
+      AndroidApk.configure(resource_finder: :aapt) do
+        AndroidApk.analyze(apk_filepath)
+      end
+    end
 
     shared_examples_for :analyzable do
       it "should exist" do
@@ -23,6 +37,10 @@ describe "AndroidApk" do
 
       it "should not raise any error when getting an available png icon file" do
         expect { subject.available_png_icon }.not_to raise_exception
+      end
+
+      it "aapt and aapt2 compatibility" do
+        expect(subject).to eql(aapt_apk)
       end
     end
 
