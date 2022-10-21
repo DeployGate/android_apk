@@ -4,8 +4,9 @@ class AndroidApk
   class ResourceFinder
     # @param delegatee [#resolve_icons_in_arsc]
     def initialize(delegatee:)
-       raise "delegatee must not be nil" if delegatee.nil? || !delegatee.respond_to?(:resolve_icons_in_arsc)
-       @delegatee = delegatee
+      raise "delegatee must not be nil" if delegatee.nil? || !delegatee.respond_to?(:resolve_icons_in_arsc)
+
+      @delegatee = delegatee
     end
 
     # @param apk_filepath [String] apk file path

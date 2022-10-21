@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 describe AndroidApk::ResourceFinder do
-
   describe "#resolve_icons_in_arsc" do
     context "if the invalid value is given" do
-      subject { resource_finder.resolve_icons_in_arsc(apk_filepath: 'apk_filepath', default_icon_path: default_icon_path) }
+      subject { resource_finder.resolve_icons_in_arsc(apk_filepath: "apk_filepath", default_icon_path: default_icon_path) }
       let(:resource_finder) { AndroidApk::ResourceFinder.new(delegatee: delegatee) }
       let(:delegatee) { double(:finder) }
 
@@ -12,35 +11,35 @@ describe AndroidApk::ResourceFinder do
         allow(delegatee).to receive(:resolve_icons_in_arsc).and_return(nil)
       end
 
-      context 'when default_icon_path is nil' do
+      context "when default_icon_path is nil" do
         let(:default_icon_path) { nil }
 
         it "delegates successfully and returns a hash" do
           is_expected.to be_empty
-          expect(delegatee).to have_received(:resolve_icons_in_arsc).with(apk_filepath: 'apk_filepath', default_icon_path: default_icon_path)
+          expect(delegatee).to have_received(:resolve_icons_in_arsc).with(apk_filepath: "apk_filepath", default_icon_path: default_icon_path)
         end
       end
 
-      context 'when default_icon_path is empty' do
+      context "when default_icon_path is empty" do
         let(:default_icon_path) { nil }
 
         it "delegates successfully and returns a hash" do
           is_expected.to be_empty
-          expect(delegatee).to have_received(:resolve_icons_in_arsc).with(apk_filepath: 'apk_filepath', default_icon_path: default_icon_path)
+          expect(delegatee).to have_received(:resolve_icons_in_arsc).with(apk_filepath: "apk_filepath", default_icon_path: default_icon_path)
         end
       end
     end
 
-    let(:aapt_result) {
+    let(:aapt_result) do
       AndroidApk::ResourceFinder.new(
         delegatee: AndroidApk::Aapt::ResourceFinder
       ).resolve_icons_in_arsc(apk_filepath: apk_filepath, default_icon_path: default_icon_path)
-    }
-    let(:aapt2_result) {
+    end
+    let(:aapt2_result) do
       AndroidApk::ResourceFinder.new(
         delegatee: AndroidApk::Aapt2::ResourceFinder
       ).resolve_icons_in_arsc(apk_filepath: apk_filepath, default_icon_path: default_icon_path)
-    }
+    end
 
     subject { aapt2_result }
     let(:default_icon_path) { AndroidApk.analyze(apk_filepath).icon }
@@ -50,10 +49,10 @@ describe AndroidApk::ResourceFinder do
 
       it do
         is_expected.to eq(
-                         "hdpi-v4" => "res/drawable-hdpi/ic_launcher.png",
-                         "mdpi-v4" => "res/drawable-mdpi/ic_launcher.png",
-                         "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
-                       )
+          "hdpi-v4" => "res/drawable-hdpi/ic_launcher.png",
+          "mdpi-v4" => "res/drawable-mdpi/ic_launcher.png",
+          "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
+        )
       end
 
       it { expect(aapt2_result).to eq(aapt_result) }
@@ -64,10 +63,10 @@ describe AndroidApk::ResourceFinder do
 
       it do
         is_expected.to eq(
-                         "hdpi-v4" => "res/drawable-hdpi/ic_launcher.png",
-                         "mdpi-v4" => "res/drawable-mdpi/ic_launcher.png",
-                         "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
-                       )
+          "hdpi-v4" => "res/drawable-hdpi/ic_launcher.png",
+          "mdpi-v4" => "res/drawable-mdpi/ic_launcher.png",
+          "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
+        )
       end
 
       it { expect(aapt2_result).to eq(aapt_result) }
@@ -95,10 +94,10 @@ describe AndroidApk::ResourceFinder do
 
       it do
         is_expected.to eq(
-                         "hdpi-v4" => "res/drawable-hdpi/ic_launcher.png",
-                         "mdpi-v4" => "res/drawable-mdpi/ic_launcher.png",
-                         "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
-                       )
+          "hdpi-v4" => "res/drawable-hdpi/ic_launcher.png",
+          "mdpi-v4" => "res/drawable-mdpi/ic_launcher.png",
+          "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
+        )
       end
 
       it { expect(aapt2_result).to eq(aapt_result) }
@@ -112,12 +111,12 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to eq(
-                           "hdpi" => "res/drawable-hdpi-v4/ic_launcher.png",
-                           "mdpi" => "res/drawable-mdpi-v4/ic_launcher.png",
-                           "xhdpi" => "res/drawable-xhdpi-v4/ic_launcher.png",
-                           "xxhdpi" => "res/drawable-xxhdpi-v4/ic_launcher.png",
-                           "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
-                         )
+            "hdpi" => "res/drawable-hdpi-v4/ic_launcher.png",
+            "mdpi" => "res/drawable-mdpi-v4/ic_launcher.png",
+            "xhdpi" => "res/drawable-xhdpi-v4/ic_launcher.png",
+            "xxhdpi" => "res/drawable-xxhdpi-v4/ic_launcher.png",
+            "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
+          )
         end
 
         it { expect(aapt2_result).to eq(aapt_result) }
@@ -128,12 +127,12 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to eq(
-                           "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
-                           "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
-                           "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
-                           "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
-                           "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
-                         )
+            "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
+            "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
+            "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
+            "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
+            "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
+          )
         end
 
         it { expect(aapt2_result).to eq(aapt_result) }
@@ -144,8 +143,8 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to match(
-                           "(default)" => "res/drawable/ic_launcher.png"
-                         )
+            "(default)" => "res/drawable/ic_launcher.png"
+          )
         end
 
         it { expect(aapt2_result).to eq(aapt_result) }
@@ -164,13 +163,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to eq(
-                             "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml",
-                             "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
-                             "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
-                             "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
-                             "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
-                             "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
-                           )
+              "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml",
+              "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
+              "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
+              "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
+              "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
+              "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -180,13 +179,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to eq(
-                             "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml",
-                             "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
-                             "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
-                             "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
-                             "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
-                             "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
-                           )
+              "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml",
+              "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
+              "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
+              "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
+              "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
+              "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -198,13 +197,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to eq(
-                             "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml",
-                             "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
-                             "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
-                             "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
-                             "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
-                             "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
-                           )
+              "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml",
+              "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
+              "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
+              "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
+              "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
+              "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -214,13 +213,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to eq(
-                             "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml",
-                             "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
-                             "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
-                             "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
-                             "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
-                             "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
-                           )
+              "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml",
+              "hdpi" => "res/mipmap-hdpi-v4/ic_launcher.png",
+              "mdpi" => "res/mipmap-mdpi-v4/ic_launcher.png",
+              "xhdpi" => "res/mipmap-xhdpi-v4/ic_launcher.png",
+              "xxhdpi" => "res/mipmap-xxhdpi-v4/ic_launcher.png",
+              "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -232,8 +231,8 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml"
-                           )
+              "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -243,8 +242,8 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml"
-                           )
+              "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -256,14 +255,14 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to eq(
-                             "anydpi-v21" => "res/drawable-anydpi-v21/ic_launcher.xml",
-                             "hdpi" => "res/drawable-hdpi-v4/ic_launcher.png",
-                             "mdpi" => "res/drawable-mdpi-v4/ic_launcher.png",
-                             "ldpi" => "res/drawable-ldpi-v4/ic_launcher.png",
-                             "xhdpi" => "res/drawable-xhdpi-v4/ic_launcher.png",
-                             "xxhdpi" => "res/drawable-xxhdpi-v4/ic_launcher.png",
-                             "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
-                           )
+              "anydpi-v21" => "res/drawable-anydpi-v21/ic_launcher.xml",
+              "hdpi" => "res/drawable-hdpi-v4/ic_launcher.png",
+              "mdpi" => "res/drawable-mdpi-v4/ic_launcher.png",
+              "ldpi" => "res/drawable-ldpi-v4/ic_launcher.png",
+              "xhdpi" => "res/drawable-xhdpi-v4/ic_launcher.png",
+              "xxhdpi" => "res/drawable-xxhdpi-v4/ic_launcher.png",
+              "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -273,13 +272,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to eq(
-                             "(default)" => "res/drawable/ic_launcher.xml",
-                             "hdpi" => "res/drawable-hdpi-v4/ic_launcher.png",
-                             "mdpi" => "res/drawable-mdpi-v4/ic_launcher.png",
-                             "xhdpi" => "res/drawable-xhdpi-v4/ic_launcher.png",
-                             "xxhdpi" => "res/drawable-xxhdpi-v4/ic_launcher.png",
-                             "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
-                           )
+              "(default)" => "res/drawable/ic_launcher.xml",
+              "hdpi" => "res/drawable-hdpi-v4/ic_launcher.png",
+              "mdpi" => "res/drawable-mdpi-v4/ic_launcher.png",
+              "xhdpi" => "res/drawable-xhdpi-v4/ic_launcher.png",
+              "xxhdpi" => "res/drawable-xxhdpi-v4/ic_launcher.png",
+              "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -290,8 +289,8 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to eq(
-                           "(default)" => "res/drawable/ic_launcher.xml"
-                         )
+            "(default)" => "res/drawable/ic_launcher.xml"
+          )
         end
         it { expect(aapt2_result).to eq(aapt_result) }
       end
@@ -305,12 +304,12 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to match(
-                           "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                         )
+            "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+          )
         end
         it { expect(aapt2_result).to eq(aapt_result) }
       end
@@ -320,12 +319,12 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to match(
-                           "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                           "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                         )
+            "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+            "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+          )
         end
         it { expect(aapt2_result).to eq(aapt_result) }
       end
@@ -335,8 +334,8 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to match(
-                           "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                         )
+            "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+          )
         end
         it { expect(aapt2_result).to eq(aapt_result) }
       end
@@ -354,13 +353,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi-v26" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
-                             "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                           )
+              "anydpi-v26" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
+              "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -370,13 +369,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
-                             "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                           )
+              "anydpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
+              "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -388,8 +387,8 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi-v26" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
-                           )
+              "anydpi-v26" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -399,8 +398,8 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
-                           )
+              "anydpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -412,14 +411,14 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "anydpi-v21" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
-                             "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "ldpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                           )
+              "anydpi-v21" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
+              "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "ldpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -429,13 +428,13 @@ describe AndroidApk::ResourceFinder do
 
           it do
             is_expected.to match(
-                             "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
-                             "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
-                             "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
-                           )
+              "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z}),
+              "hdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "mdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z}),
+              "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
+            )
           end
           it { expect(aapt2_result).to eq(aapt_result) }
         end
@@ -446,12 +445,11 @@ describe AndroidApk::ResourceFinder do
 
         it do
           is_expected.to match(
-                           "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
-                         )
+            "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
+          )
         end
         it { expect(aapt2_result).to eq(aapt_result) }
       end
     end
   end
 end
-

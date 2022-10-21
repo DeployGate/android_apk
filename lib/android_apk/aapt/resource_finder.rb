@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AndroidApk
   module Aapt
     class ResourceFinder
@@ -7,6 +9,7 @@ class AndroidApk
         # @param default_icon_path [String] the path to the default icon in the apk
         def resolve_icons_in_arsc(apk_filepath:, default_icon_path:)
           return {} if default_icon_path.nil? || default_icon_path.empty?
+
           stdout = dump_resource_values(apk_filepath: apk_filepath) or return {}
 
           lines = stdout.scrub.split("\n")

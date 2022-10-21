@@ -122,7 +122,7 @@ class AndroidApk
     resource_finder: nil
   )
     args = {}
-    args.merge!(resource_finder_type: resource_finder) if resource_finder != nil
+    args.merge!(resource_finder_type: resource_finder) unless resource_finder.nil?
 
     new_configuration = @configuration.copy(**args)
 
@@ -375,21 +375,21 @@ class AndroidApk
   end
 
   def eql?(other)
-    return unless other.is_a?(AndroidApk)
+    return unless other.kind_of?(AndroidApk)
 
-    [
-      :label,
-      :package_name,
-      :version_code,
-      :version_name,
-      :min_sdk_version,
-      :target_sdk_version,
-      :signature,
-      :adaptive_icon?,
-      :backward_compatible_adaptive_icon?,
-      :verified?,
-      :test_only?
-    ].all? do |prop|
+    %i(
+      label
+      package_name
+      version_code
+      version_name
+      min_sdk_version
+      target_sdk_version
+      signature
+      adaptive_icon?
+      backward_compatible_adaptive_icon?
+      verified?
+      test_only?
+    ).all? do |prop|
       self.send(prop) == other.send(prop)
     end
   end

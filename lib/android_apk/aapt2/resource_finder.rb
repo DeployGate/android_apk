@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AndroidApk
   module Aapt2
     class ResourceFinder
@@ -7,6 +9,7 @@ class AndroidApk
         # @param default_icon_path [String] the path to the default icon in the apk
         def resolve_icons_in_arsc(apk_filepath:, default_icon_path:)
           return {} if default_icon_path.nil? || default_icon_path.empty?
+
           stdout = dump_resource_values(apk_filepath: apk_filepath) or return {}
 
           lines = stdout.scrub.split("\n")
@@ -46,7 +49,7 @@ class AndroidApk
           cursor_index = pivot_index
           direction = :up
 
-          while 0 <= cursor_index && cursor_index < lines.size do
+          while cursor_index >= 0 && cursor_index < lines.size
             # if the indent level has changed, process step 2 or 4
             if lines[cursor_index][/\A\s+/].size != expected_indent_level
               # go to step.4!
@@ -58,7 +61,8 @@ class AndroidApk
 
             captures = lines[cursor_index]&.lstrip&.match(/\((?'dpi'.*)\)\s+\(file\)\s+(?'path'\S+)/)&.named_captures || {}
 
-            dpi, path = captures["dpi"], captures["path"]
+            dpi = captures["dpi"]
+            path = captures["path"]
 
             break if dpi.nil? || path.nil? # unexpected.
 
