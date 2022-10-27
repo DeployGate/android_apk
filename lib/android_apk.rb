@@ -112,33 +112,6 @@ class AndroidApk
     UNSIGNED = :unsigned
   end
 
-  # Initialize AndroidApk with the default setting on load
-  @configuration = ::AndroidApk::Configuration.defaults
-
-  # Configure AndroidApk
-  #
-  # @param resource_finder [Symbol] one of :aapt, :aapt2
-  def self.configure(
-    resource_finder: nil
-  )
-    args = {}
-    args.merge!(resource_finder_type: resource_finder) unless resource_finder.nil?
-
-    new_configuration = @configuration.copy(**args)
-
-    if block_given?
-      begin
-        evacuated = @configuration
-        @configuration = new_configuration
-        yield
-      ensure
-        @configuration = evacuated
-      end
-    else
-      @configuration = new_configuration
-    end
-  end
-
   # Do analyze the given apk file. Analyzed apk does not mean *valid*.
   #
   # @param [String] filepath a filepath of an apk to be analyzed
@@ -146,7 +119,6 @@ class AndroidApk
   # @raise [AndroidApk::ApkFileNotFoundError] if the filepath doesn't exist
   # @raise [AndroidApk::UnacceptableApkError] if the apk file is not acceptable by commands like aapt
   # @raise [AndroidApk::AndroidManifestValidateError] if the apk contains invalid AndroidManifest.xml but only when we can identify why it's invalid.
-  # rubocop:disable Metrics/AbcSize
   def self.analyze(filepath)
     raise ApkFileNotFoundError, "an apk file is required to analyze." unless File.exist?(filepath)
 
@@ -200,7 +172,7 @@ class AndroidApk
     end
 
     # It seems the resources in the aapt's output doesn't mean that it's available in resource.arsc
-    icons_in_arsc = @configuration.resource_finder.resolve_icons_in_arsc(
+    icons_in_arsc = ::AndroidApk::ResourceFinder.decode_resource_table(
       apk_filepath: filepath,
       default_icon_path: default_icon_path
     )
@@ -213,7 +185,6 @@ class AndroidApk
 
     return apk
   end
-  # rubocop:enable Metrics/AbcSize
 
   def initialize
     self.verified = false

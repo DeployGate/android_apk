@@ -1,47 +1,8 @@
 # frozen_string_literal: true
 
 describe AndroidApk::ResourceFinder do
-  describe "#resolve_icons_in_arsc" do
-    context "if the invalid value is given" do
-      subject { resource_finder.resolve_icons_in_arsc(apk_filepath: "apk_filepath", default_icon_path: default_icon_path) }
-      let(:resource_finder) { AndroidApk::ResourceFinder.new(delegatee: delegatee) }
-      let(:delegatee) { double(:finder) }
-
-      before do
-        allow(delegatee).to receive(:resolve_icons_in_arsc).and_return(nil)
-      end
-
-      context "when default_icon_path is nil" do
-        let(:default_icon_path) { nil }
-
-        it "delegates successfully and returns a hash" do
-          is_expected.to be_empty
-          expect(delegatee).to have_received(:resolve_icons_in_arsc).with(apk_filepath: "apk_filepath", default_icon_path: default_icon_path)
-        end
-      end
-
-      context "when default_icon_path is empty" do
-        let(:default_icon_path) { nil }
-
-        it "delegates successfully and returns a hash" do
-          is_expected.to be_empty
-          expect(delegatee).to have_received(:resolve_icons_in_arsc).with(apk_filepath: "apk_filepath", default_icon_path: default_icon_path)
-        end
-      end
-    end
-
-    let(:aapt_result) do
-      AndroidApk::ResourceFinder.new(
-        delegatee: AndroidApk::Aapt::ResourceFinder
-      ).resolve_icons_in_arsc(apk_filepath: apk_filepath, default_icon_path: default_icon_path)
-    end
-    let(:aapt2_result) do
-      AndroidApk::ResourceFinder.new(
-        delegatee: AndroidApk::Aapt2::ResourceFinder
-      ).resolve_icons_in_arsc(apk_filepath: apk_filepath, default_icon_path: default_icon_path)
-    end
-
-    subject { aapt2_result }
+  describe "#decode_resource_table" do
+    subject { AndroidApk::ResourceFinder.decode_resource_table(apk_filepath: apk_filepath, default_icon_path: default_icon_path) }
     let(:default_icon_path) { AndroidApk.analyze(apk_filepath).icon }
 
     context "sample.apk" do
@@ -54,8 +15,6 @@ describe AndroidApk::ResourceFinder do
           "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
         )
       end
-
-      it { expect(aapt2_result).to eq(aapt_result) }
     end
 
     context "sample with space.apk" do
@@ -68,8 +27,6 @@ describe AndroidApk::ResourceFinder do
           "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
         )
       end
-
-      it { expect(aapt2_result).to eq(aapt_result) }
     end
 
     # emulate
@@ -99,8 +56,6 @@ describe AndroidApk::ResourceFinder do
           "xhdpi-v4" => "res/drawable-xhdpi/ic_launcher.png"
         )
       end
-
-      it { expect(aapt2_result).to eq(aapt_result) }
     end
 
     context "resources" do
@@ -118,8 +73,6 @@ describe AndroidApk::ResourceFinder do
             "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
           )
         end
-
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "mipmapPngIconOnly" do
@@ -134,8 +87,6 @@ describe AndroidApk::ResourceFinder do
             "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
           )
         end
-
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "pngInDrawable" do
@@ -146,15 +97,12 @@ describe AndroidApk::ResourceFinder do
             "(default)" => "res/drawable/ic_launcher.png"
           )
         end
-
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "noIcon" do
         let(:apk_name) { "apks-21/noIcon.apk" }
 
         it { is_expected.to eq({}) }
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "adaptiveIconWithPng" do
@@ -171,7 +119,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk is 26" do
@@ -187,7 +134,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -205,7 +151,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk is 26" do
@@ -221,7 +166,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => "res/mipmap-xxxhdpi-v4/ic_launcher.png"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -234,7 +178,6 @@ describe AndroidApk::ResourceFinder do
               "anydpi-v26" => "res/mipmap-anydpi-v26/ic_launcher.xml"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk is 26" do
@@ -245,7 +188,6 @@ describe AndroidApk::ResourceFinder do
               "anydpi" => "res/mipmap-anydpi-v26/ic_launcher.xml"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -264,7 +206,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk 21" do
@@ -280,7 +221,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => "res/drawable-xxxhdpi-v4/ic_launcher.png"
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -292,7 +232,6 @@ describe AndroidApk::ResourceFinder do
             "(default)" => "res/drawable/ic_launcher.xml"
           )
         end
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
     end
 
@@ -311,7 +250,6 @@ describe AndroidApk::ResourceFinder do
             "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
           )
         end
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "mipmapPngIconOnly" do
@@ -326,7 +264,6 @@ describe AndroidApk::ResourceFinder do
             "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
           )
         end
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "pngInDrawable" do
@@ -337,14 +274,12 @@ describe AndroidApk::ResourceFinder do
             "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
           )
         end
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "noIcon" do
         let(:apk_name) { "apks-21/noIcon.apk" }
 
         it { is_expected.to eq({}) }
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
 
       context "adaptiveIconWithPng" do
@@ -361,7 +296,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk is 26" do
@@ -377,7 +311,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -390,7 +323,6 @@ describe AndroidApk::ResourceFinder do
               "anydpi-v26" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk is 26" do
@@ -401,7 +333,6 @@ describe AndroidApk::ResourceFinder do
               "anydpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -420,7 +351,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
 
         context "min sdk 21" do
@@ -436,7 +366,6 @@ describe AndroidApk::ResourceFinder do
               "xxxhdpi" => match(%r{\Ares/[a-zA-Z0-9]{2}\.png\z})
             )
           end
-          it { expect(aapt2_result).to eq(aapt_result) }
         end
       end
 
@@ -448,7 +377,6 @@ describe AndroidApk::ResourceFinder do
             "(default)" => match(%r{\Ares/[a-zA-Z0-9]{2}\.xml\z})
           )
         end
-        it { expect(aapt2_result).to eq(aapt_result) }
       end
     end
   end
