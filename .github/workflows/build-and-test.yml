@@ -24,7 +24,7 @@ jobs:
     name: "Execute ${{ matrix.task }}"
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - uses: ruby/setup-ruby@5cfe23c062c0aac352e765b1b7cc12ea5255ccc4
+      - uses: ruby/setup-ruby@cd48c8e22733480b66887b42bfeb6c0b88ea1a56
         with:
           bundler-cache: true
       - run: bundle exec rake ${{ matrix.task }}
@@ -39,7 +39,7 @@ jobs:
           - 33.0.2
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - uses: ruby/setup-ruby@5cfe23c062c0aac352e765b1b7cc12ea5255ccc4
+      - uses: ruby/setup-ruby@cd48c8e22733480b66887b42bfeb6c0b88ea1a56
         with:
           bundler-cache: true
       - uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
