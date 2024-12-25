@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix: # Use as the parameter injection
         java-version:
-          - 11
+          - 17
         buildtools-version:
           - 35.0.0
     timeout-minutes: 20
