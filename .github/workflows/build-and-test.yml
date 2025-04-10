@@ -24,7 +24,7 @@ jobs:
     name: "Execute ${{ matrix.task }}"
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: ruby/setup-ruby@1a615958ad9d422dd932dc1d5823942ee002799f
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
         with:
           bundler-cache: true
       - run: bundle exec rake ${{ matrix.task }}
@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: ruby/setup-ruby@1a615958ad9d422dd932dc1d5823942ee002799f
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
         with:
           bundler-cache: true
       - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00
