@@ -55,7 +55,7 @@ GEM
       stringio
     racc (1.7.1)
     rainbow (3.1.1)
-    rake (10.5.0)
+    rake (12.3.3)
     rb-fsevent (0.11.2)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
@@ -116,7 +116,7 @@ DEPENDENCIES
   irb
   mini_magick
   pry
-  rake (~> 10.0)
+  rake (~> 12.3)
   rspec (~> 3.4)
   rubocop
   simplecov
