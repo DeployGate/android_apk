@@ -6,7 +6,7 @@ source "https://rubygems.org"
 gemspec
 
 # General ruby development
-gem "rake", "~> 10.0"
+gem "rake", "~> 12.3"
 
 # Testing support
 gem "rspec", "~> 3.4"
