@@ -106,7 +106,7 @@ GEM
     stringio (3.2.0)
     thor (1.2.2)
     unicode-display_width (2.5.0)
-    yard (0.9.34)
+    yard (0.9.36)
 
 PLATFORMS
   ruby
